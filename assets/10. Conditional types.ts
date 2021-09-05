@@ -50,3 +50,35 @@ interface Dog {
 }
 type EmailMessageContents = MessageOf3<Email>
 type DogMessageContents = MessageOf3<Dog>
+
+
+//* Вывод внутри условных типов
+type Flatten<Type> = Type extends Array<infer Item> ? Item : Type
+
+type GetReturnType<Type> = Type extends (...args: never[]) => infer Return ? Return : never
+type Num = GetReturnType<() => number>
+type Str = GetReturnType<() => string>
+type Bls = GetReturnType<(a: boolean, b: boolean) => boolean[]>
+
+// При выводе из типа с несколькими сигнатурами вызовов выводы делаются из последней сигнатуры
+// Невозможно выполнить разрешение перегрузки на основе списка типов аргументов
+declare function stringOrNum(x: string): number
+declare function stringOrNum(x: number): string
+declare function stringOrNum(x: number | string): number | string
+
+type T1 = ReturnType<typeof stringOrNum>
+
+
+//* Распределительные условные типы
+// Когда условные типы воздействуют на универсальный тип,
+// они становятся распределительными при задании типа объединения
+type ToArray<Type> = Type extends any ? Type[] : never
+// Если мы подключим тип объединения  ToArray  ,
+// то условный тип будет применяться каждому члену этого объединения
+type StrArrOrNumArr = ToArray<string | number>
+
+// Обычно желаемым поведением является распределёность
+// Чтобы избежать такого поведения, вы можете заключть каждую сторону  extends  
+// кобчевого слова в квадратные скобки
+type ToArrayNonDist<T> = [T] extends [any] ? T[] : never
+type StrArrOrNumArr2 = ToArrayNonDist<string | number>
