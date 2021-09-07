@@ -284,3 +284,309 @@ class Derived5 extends Base5 {
   }
 }
 // так как свойство не видно для потомков, то и изменить его видимость нельзя
+//! данное ограничение работает только внутри TS. При исполнении JS свойства и методы будут видны
+
+
+//* Статические члены
+// У классов могут быть  static  участники. Эти члены не связаны с конкретным экземпляром класса
+// Доступ к ним можно получить через сам объект конструктора класса
+class MyClass2 {
+  static x = 0
+  static sayX() {
+    console.log(this.x)
+  }
+}
+// Они также могут использовать public, private, protected
+
+//* Специальные статические имена
+// Так как классы - это потомок функций, то в них нельзя использовать в static зарезервированные имена
+// такие как: length, call и т.д.
+
+
+//* static  блоки в классах
+// Имеют собственную область видимости, при этом имеют доступ к методам и свойствам класса
+// При этом безопасны и работают без утечки
+class Foo {
+  static #count = 0
+  get count() {
+    return Foo.#count
+  }
+  static {
+    try {
+      const lastInstances = []//loadLastInstances()
+      Foo.#count += lastInstances.length
+    } catch {}
+  }
+}
+
+
+//* Общие классы
+// Как и интерфейсы, классы могут быть общими
+// При вызове через  new  в скобках принимаются параметры в конструктор
+class Box<Type> {
+  contents: Type
+  constructor(value: Type) {
+    this.contents = value
+  }
+}
+const b = new Box(42)
+// Классы могут использовать общие ограничения и значения, как и интерфейсы
+
+
+//* Параметры типа в статических членах
+// Статические элементы не могут ссылаться на параметры типов класса
+class Box2<Type> {
+  // static defaultValue: Type     - ошибка
+}
+// Типы всегда стираются полностью, во время выполнения есть только один слот свойств
+// Это значит, что настройки слота тоже бы изменились
+// В  static  членах общего класса никогда не могут относиться к параметрам типа класса
+
+
+//* this  во время выполнения в классах
+// TS не меняет поведение this из JS
+
+
+//* Стрелочные функции
+// Если у вас есть функция, которая будет часто вызываться и терять свой контекст,
+// имеет смысл воспользоываться стрелочной функцией
+class MyClass3 {
+  name = "MyClass"
+  getName = () => {
+    return this.name
+  }
+}
+const myClassObj = new MyClass3()
+const obj = {
+  name: 12,
+  getName: myClassObj.getName
+}
+console.log(obj.getName()) //  - string
+// this не меняется
+// тратится больше памяти
+// нельзя использовать  super.getName  в производном классе, потому что в цепочке прототипов нет записи
+//  нет базового метода для извлечения класса
+
+
+//* this в функции
+// При определении метода или функции начальный параметр с именем this имеет особое значение в TS
+// Эти параметры стираются во время компиляции
+function fn<SomeType>(this: SomeType, x: number) {
+}
+// TS проверяет, что вызов функции с this параметром выполняется в правильном контексте
+// Вместо использования стрелочной функции мы можем добавить  this  параметр к определению методов,
+// чтобы статически обеспечить правильность вызова метода
+class MyClass4 {
+  name = "MyName"
+  getName(this: MyClass4) {
+    return this.name
+  }
+}
+const c = new MyClass4()
+c.getName()
+// const g = c.getName
+// g()                        - ошибка
+
+
+//* this типы
+// В классах специальный тип, называемый динамически, this ссылается на тип текущего класса
+class Box3 {
+  contents: string = ""
+  set(value: string) {
+    this.contents = value
+    return this
+  }
+}
+// Здесь TS предположил, что возвращаемый тип set должен быть this, а не Box
+
+// Теперь создадим подкласс Box
+class ClearableBox extends Box3 {
+  clear() {
+    this.contents = ""
+  }
+}
+const a3 = new ClearableBox()
+const b3 = a3.set("hello")
+
+// Также можно использовать this в аннотации типа параметра
+class Box4 {
+  content: string = ""
+  sameAs(other: this) {
+    return other.content === this.content
+  }
+}
+// Это отличается от записи other: Box - если у вас есть производный класс, его sameAs будет принимать
+// только другие экземпляры того же производного класса
+class DerivedBox4 extends Box4 {
+  otherContent: string = "?";
+}
+const base = new Box4()
+const derived = new DerivedBox4()
+// derived.sameAs(base)  - нельзя один тип this помещать в другой тип this
+
+
+//* this охранники базового типа
+// Можно использовать  this is Type  в позиции возврата для методов в классах и интерфейсах
+// При смешивании с сужением типа тип целевого объекта будет сужен до указанного Type
+class FileSystemObject {
+  isFile(): this is FileRep {
+    return this instanceof FileRep
+  }
+  isDirectory(): this is Directory {
+    return this instanceof Directory
+  }
+  isNetworked(): this is Networked & this {
+    return this.networked
+  }
+  constructor(public path: string, private networked: boolean) {}
+}
+
+class FileRep extends FileSystemObject {
+  constructor(path: string, public content: string) {
+    super(path, false)
+  }
+}
+
+class Directory extends FileSystemObject {
+  children: FileSystemObject[]
+}
+
+class Networked {
+  host: string
+}
+
+const fso: FileSystemObject = new FileRep("foo/bar.txt", "foo")
+
+if (fso.isFile()) {
+  fso.content
+} else if (fso.isDirectory()) {
+  fso.children
+} else if (fso.isNetworked()) {
+  fso.host
+}
+
+// Распространённый вариант использования защиты типа на основе this - позволить ленивую проверку поля
+// Например, в этом случае удаляется  undefined  из значения, содержащегося внутри поля, когда hasValue
+// не было
+class Box5<T> {
+  value?: T
+
+  hasValue(): this is {value: T} {
+    return this.value !== undefined
+  }
+}
+
+const box5 = new Box5()
+box5.value = "42"
+box5.value
+
+if (box5.hasValue()) {
+  box5.value
+}
+
+
+//* Свойства параметра
+// TS предлагает специальный синтаксис для превращения параметра конструктора
+// в свойство класса с тем же именем и значением
+// Это так называемые свойствами параметров и создаются префиксы аргумента конструктора
+// с одним из модификаторов видимости  public, private, protected или readonly
+// Результирующее поле получает эти модификаторы
+class Params {
+  constructor(
+    public readonly x: number,
+    protected y: number,
+    private z: number
+  ) {}
+}
+const a = new Params(1, 2, 3)
+console.log(a.x)
+// console.log(a.y)
+// console.log(a.z)     - ошибка, закрытые свойства
+
+
+//* Выражения класса
+// Выражения класса похожи на объявление, только у них может не быть имени,
+// а будет ссылка, к которой они привязаны
+const someClass = class<Type> {
+  content: Type
+  constructor(value: Type) {
+    this.content = value
+  }
+}
+const m = new someClass(11)
+console.log(m.content)
+
+
+//* abstract классы и участники
+// Классы, методы и поля в TS могут быть абстрактными
+
+// Абстрактный метод или абстрактное поле является тем, которое не имеет условия при осуществлении
+// Эти члены должны сущетвовать внутри абстрактного класса, экземпляры которого нельзя создать напрямую
+
+// Роль абстрактных классов - служить базовым классом для подклассов,
+// которые реализуют все абстрактрые члены
+// Когда класс не имеет абстрактных челонов, он называется конкретным
+abstract class Base6 {
+  abstract getName(): string
+  printName() {
+    console.log("Hello, " + this.getName().toUpperCase())
+  }
+}
+// const b = new Base6()    - ошибка: нельзя создать экземпляр абстрактного класса
+
+// Чтобы реализовать абстрактный класс, нужно создать наследника и у него реализовать абстрактные члены
+class Derived6 extends Base6 {
+  getName() {
+    return "world"
+  }
+}
+const derived6 = new Derived6()
+derived6.printName()
+
+
+//* Абстракция Construct подписи
+// Иногда мы ходим создать функцию, которая примет экземпляр абстрактного класса
+// Но указывать тип переменной в виде абстрактного класса нельзя
+// Чтобы работало, надо не указать в тип абстрактный класс, а веруть его из new
+function exanpleParamAbstruct(params: new () => Base6) {
+  const instance = new params()
+  instance.printName()
+}
+// функцию также нельзя будет вызвать на абстрактном классе, но можно на его наследниках
+exanpleParamAbstruct(Derived6)
+// exanpleParamAbstruct(Base6)        - ошибка
+
+
+//* Отношения между классами
+// В большинстве случаев классы сравниваются структурно, как и другие типы
+class Coords {
+  x = 0
+  y = 0
+}
+
+class Coords2 {
+  x = 1
+  y = 1
+}
+const coord: Coords = new Coords2()
+// Ошибки нет, классы структурно похожи
+
+// Точно также работают подтипы между классами, даже если нет явного наследования
+class Person {
+  name: string
+  age: number
+}
+class Employee {
+  name: string
+  age: number
+  salary: number
+}
+const person: Person = new Employee() //    - ошибки нет, Employee расширяет Person
+
+// Пустые классы принимают всё, что угодно
+//! Так делать не нужно
+class Empty {}
+function emptyFn(params: Empty) {}
+emptyFn({})
+emptyFn(11)
+emptyFn(Empty)
