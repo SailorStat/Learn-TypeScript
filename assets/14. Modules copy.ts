@@ -8,7 +8,7 @@ export interface Dog2 {
   breed: string
   age: number
 }
-export type Animals2 = Cat | Dog
+export type Animals2 = Cat2 | Dog2
 
 let module2
 module2.exports = {
