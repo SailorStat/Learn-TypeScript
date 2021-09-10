@@ -22,7 +22,7 @@ const todo2 = updateTodo(todo1, {description: "throw out trash"})
 //* Required<Type>
 // Создаёт тип, состоящий из всех свойств Type равных required
 // Противоположный Partial
-interface Props {
+{interface Props {
   a?: number,
   b?: number
 }
@@ -30,7 +30,7 @@ const obj: Props = {a: 5}
 // const obj2: Required<Props> = {a: 2}    - ошибка: b является необязательным для Props,
                                         //   значит здесь обязательно
 
-
+}
 //* Readonly<Type>
 // Создаёт тип, все значения которого доступны только для чтения
 const readonlyTodo: Readonly<Todo> = {
@@ -98,12 +98,12 @@ type WithoutNullAndUndefined = NonNullable< null | undefined | number | Todo>
 
 //* Parameters<Type>
 // Создаёт кортежный тип из типов, используемых в параметрах функции типа Type
-declare function f1(arg: {a: number, b: string}): void
+declare function f4(arg: {a: number, b: string}): void
 
 type T0 = Parameters<() => string>
-type T1 = Parameters<(s: string) => void>
+type T11 = Parameters<(s: string) => void>
 type T2 = Parameters<<T>(arg: T) => T>
-type T3 = Parameters<typeof f1>
+type T3 = Parameters<typeof f4>
 type T4 = Parameters<any>
 type T5 = Parameters<never>
 // type T6 = Parameters<string>
@@ -122,13 +122,13 @@ type Ty3 = ConstructorParameters<any>
 
 //* ReturnType<Type>
 // Создаёт тип, состоящий из возвращаемого типа функции Type
-declare function f2(): {a: number, b: string}
+declare function f5(): {a: number, b: string}
 
 type Typ0 = ReturnType<() => string>
 type Typ1 = ReturnType<(s: string) => void>
 type Typ2 = ReturnType<<T>() => T>
 type Typ3 = ReturnType<<T extends U, U extends number[]>() => T>
-type Typ4 = ReturnType<typeof f2>
+type Typ4 = ReturnType<typeof f5>
 type Typ5 = ReturnType<any>
 type Typ6 = ReturnType<never>
 // type Typ7 = ReturnType<string>
@@ -137,12 +137,12 @@ type Typ6 = ReturnType<never>
 
 //* InstanceType<Type>
 // Создаёт тип, состоящий из типа экземпляра функции-конструктора в Type
-class C {
+class Ca {
   x = 0
   y = 0
 }
 
-type C0 = InstanceType<typeof C>
+type C0 = InstanceType<typeof Ca>
 type C1 = InstanceType<any>
 type C2 = InstanceType<never>
 // type C3 = InstanceType<string>
