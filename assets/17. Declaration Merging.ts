@@ -154,6 +154,9 @@ namespace Gala {
 // Это даёт пользователю способ описания внутренних классов
 class Album {
   label: Album.AlbumLabel
+  constructor() {
+    this.label = Album.AlbumLabel
+  }
 }
 namespace Album {
   export class AlbumLabel {}
@@ -177,8 +180,8 @@ console.log(buildLabel("Jon"))
 
 // Точно так же пространства имён можно использовать для перечисления статическими членами
 enum Color {
-  red = 1
-  green = 2
+  red = 1,
+  green = 2,
   blue = 4
 }
 namespace Color {
