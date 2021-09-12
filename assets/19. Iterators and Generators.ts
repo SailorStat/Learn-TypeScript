@@ -59,3 +59,13 @@ let numbersArr = [1, 2, 3]
 for (let num of numbersArr) {
   console.log(num)
 }
+// будет сгенерирован как
+var numbersArray = [1, 2, 3]
+for (var _i = 0; _i < numbersArray.length; _i++) {
+  var num = numbersArray[_i]
+  console.log(num)
+}
+
+//todo Ориентация на ECMAScript 2015 и выше
+// При нацеливании на движок, совместный с ECMAScript 2015, компилятор будет генерировать for of циклы
+// для нацеливания на встроенную реализацию итератора в движке
