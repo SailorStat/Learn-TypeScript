@@ -225,4 +225,4 @@ declare namespace D3 {
     event: Event
   }
 }
-declare var d3: D3.Base
+declare var d3Base: D3.Base
