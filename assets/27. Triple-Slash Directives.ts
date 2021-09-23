@@ -119,4 +119,6 @@ export class C{}
 // moduleA.callStuff()
 
 // Сгенерированный код JS
-define(["require", "exports", "legacy/module"])
+// define(["require", "exports", "legacy/module"], function (require, exports, ModuleA) {
+//   ModuleA.callStuff()
+// })
