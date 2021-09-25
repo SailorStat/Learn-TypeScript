@@ -261,4 +261,5 @@
 //   undefined, и null (если --strictNullChecksвыключен, смотрите таблицу для деталей)
 // - Когда --strictNullChecksвыключено nullи undefinedаналогично never: присваивается большинству
 //   типов, большинство типов им не присваивается. Они назначаются друг другу.
-// - 
+// - Когда --strictNullChecksвключен, nullи undefinedвести себя , как void: не может быть передано
+//   или от чего - либо, за исключением any, unknown, neverи void( undefinedвсегда присваиваемые void).
