@@ -50,32 +50,36 @@ holidays.days[2] = "11 november"    // - а так изменили внутре
 
 // При создании нового объекта  readonly  берётся из источника
 // а проверка валидности от псевдонима
-interface Person {
-  name: string
-  age: number
-}
-interface ReadonlyPerson {
-  readonly name: string
-  readonly age: number
-}
-let writablePerson: Person = {
-  name: "Person McPersonface",
-  age: 42,
-}
-let readonlyPerson: ReadonlyPerson = writablePerson // - readonly не сохраняется
+{
+  interface Person {
+    name: string
+    age: number
+  }
+  interface ReadonlyPerson {
+    readonly name: string
+    readonly age: number
+  }
+  let writablePerson: Person = {
+    name: "Person McPersonface",
+    age: 42,
+  }
+  let readonlyPerson: ReadonlyPerson = writablePerson // - readonly не сохраняется
 
-console.log(readonlyPerson.age) // '42'
-writablePerson.age++
-console.log(readonlyPerson.age) // '43'
+  console.log(readonlyPerson.age) // '42'
+  writablePerson.age++
+  console.log(readonlyPerson.age) // '43'
+}
 
 
 //* Индексные подписи
 // Иногда мы заранее не знаем, как будут называться значения, но знаем, что они будут содержать
 // тогда мы можем назначить индексные подписи
-interface StringArray {
-  [index: number]: string
-} // - под числовым значением будет находиться строка
-const newArr: StringArray = ["1", "2"]
+{
+  interface StringArray {
+    [index: number]: string
+  } // - под числовым значением будет находиться строка
+  const newArr: StringArray = ["1", "2"]
+}
 
 // Индексировать можно только числом или строкой
 // Если индексировать и числом, и строкой, то надо учитывать,
@@ -124,7 +128,7 @@ interface Dog extends Raw, Eye {
 
 //* Типы перечечений
 // Создать новый тип можно не добавляя новых свойств с помощью  &
-type Animal = Heart & Raw & Eye
+{type Animal = Heart & Raw & Eye}
 
 
 //* Интерфейсы против пересечений
@@ -153,12 +157,13 @@ let box: Box<string>
 const readOnlyArray: ReadonlyArray<string> = ["Россия", "Украина", "Беларусия"]
 // readOnlyArray.unshift()    - ошибка
 // В отличии от Array у ReadonlyArray нет конструктора
-let x: readonly string[] = []
-let y: string[] = []
-x = y
-// y = x   - ошибка
+{
+  let x: readonly string[] = []
+  let y: string[] = []
+  x = y
+  // y = x   - ошибка
 
-
+}
 //* Tип кортежа
 // Это массив, который точно знает количество элементов, порядок и тип
 type rainbow = [string, string, string, string, string, string, string]
